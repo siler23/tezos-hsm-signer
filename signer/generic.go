@@ -124,7 +124,7 @@ func (op *GenericOperation) TransactionValue() *big.Int {
 
 // Private funcs to parse sequentially serialized numbers in the operation's hex
 func (op *GenericOperation) parseSerializedNumberOffset(offset int) *big.Int {
-	var num *big.Int
+	num := new(big.Int).SetInt64(int64(0))
 	// Numbers always begin at this index
 	index := 56
 	for i := 0; i <= offset; i++ {
