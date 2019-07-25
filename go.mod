@@ -1,6 +1,9 @@
 module gitlab.com/polychainlabs/tezos-hsm-signer
+<<<<<<< HEAD
 
 go 1.12
+=======
+>>>>>>> e578adf... revert imports to gitlab.com/polychainlabs
 
 require (
 <<<<<<< HEAD
