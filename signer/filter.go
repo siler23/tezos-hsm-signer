@@ -33,7 +33,7 @@ func (filter *OperationFilter) IsAllowed(op *Operation) bool {
 		if filter.EnableVoting && (generic.Kind() == opKindBallot) {
 			return true
 		}
-		if filter.EnableVoting && (generic.Kind() == opKindProposals) {
+		if filter.EnableVoting && (generic.Kind() == opKindProposal) {
 			return true
 		}
 		return false
@@ -45,10 +45,12 @@ func (filter *OperationFilter) IsAllowed(op *Operation) bool {
 // Is this address whitelisted? Returns true if whitelistising is disabled
 func (filter *OperationFilter) isWhitelisted(generic *GenericOperation) bool {
 	if filter.TxWhitelistAddresses == nil {
+		debugln("[isWhitelisted] No whitelist set.  Allowing transfer.")
 		return true
 	}
 	for _, pkh := range filter.TxWhitelistAddresses {
 		if generic.TransactionDestination() == PubkeyHashToByteString(pkh) {
+			debugln("[isWhitelisted] Address is whitelisted.  Allowing transfer")
 			return true
 		}
 	}
@@ -60,6 +62,7 @@ func (filter *OperationFilter) isWhitelisted(generic *GenericOperation) bool {
 // over the daily limit in XTZ.  Returns true if limits are disabled
 func (filter *OperationFilter) authorizeTxAmount(value *big.Int) bool {
 	if filter.TxDailyMax == nil {
+		debugln("[authorizeTxAmount] No rate limit set.  Allowing transfer.")
 		return true
 	}
 
@@ -71,5 +74,7 @@ func (filter *OperationFilter) authorizeTxAmount(value *big.Int) bool {
 		filter.dailyTxMaxCounter = new(big.Int).SetInt64(0)
 	}
 	filter.dailyTxMaxCounter.Add(filter.dailyTxMaxCounter, value)
-	return filter.dailyTxMaxCounter.Cmp(filter.TxDailyMax) == -1
+	authorized := filter.dailyTxMaxCounter.Cmp(filter.TxDailyMax) == -1
+	debugln("[authorizeTxAmount] authorized result: ", authorized)
+	return authorized
 }

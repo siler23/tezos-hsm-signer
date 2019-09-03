@@ -73,9 +73,13 @@ func (op *Operation) MagicByte() uint8 {
 
 // ChainID to determine what we're running on
 func (op *Operation) ChainID() string {
-	chainID := op.hex[1:5]
-	prefix, _ := hex.DecodeString(tzChainID)
-	return b58CheckEncode(prefix, chainID)
+	if op.MagicByte() == opMagicByteBlock || op.MagicByte() == opMagicByteEndorsement {
+		chainID := op.hex[1:5]
+		prefix, _ := hex.DecodeString(tzChainID)
+		return b58CheckEncode(prefix, chainID)
+	}
+	log.Println("Warn: Requested ChainID for unexpected magic byte:", op.MagicByte())
+	return ""
 }
 
 // Level returns a copy of the level, if one can be parsed from this operation

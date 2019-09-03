@@ -13,12 +13,19 @@ type GenericOperation struct {
 
 // Kind of different types of generic operations
 // Defined in gitlb.com/tezos/tezos:
-// https://gitlab.com/tezos/tezos/blob/mainnet/src/proto_003_PsddFKi3/lib_protocol/src/operation_repr.ml
+// https://gitlab.com/tezos/tezos/blob/zeronet/src/proto_005_PsBABY5H/lib_protocol/operation_repr.ml#L548
 const (
-	opKindUnknown     = 0xff
-	opKindProposals   = 0x05
-	opKindBallot      = 0x06
-	opKindTransaction = 0x08
+	opKindSeedNonceRevelation  = 0x01
+	opKindDoubleEndorsement    = 0x02
+	opKindDoubleBakingEvidence = 0x04
+	opKindActivateAccount      = 0x04
+	opKindProposal             = 0x05
+	opKindBallot               = 0x06
+	opKindReveal               = 0x6B
+	opKindTransaction          = 0x6C
+	opKindOrigination          = 0x6C
+	opKindDelegation           = 0x6E
+	opKindUnknown              = 0xff
 )
 
 // GetGenericOperation to parse specific Generic fields
@@ -30,6 +37,9 @@ func GetGenericOperation(op *Operation) *GenericOperation {
 		hex: op.Hex(),
 	}
 }
+
+// Structure for these methods is documented in:
+// `tezos-client describe unsigned operation`
 
 // Kind of the generic operation
 func (op *GenericOperation) Kind() uint8 {
@@ -46,7 +56,7 @@ func (op *GenericOperation) TransactionSource() string {
 	if op.Kind() != opKindTransaction {
 		return ""
 	}
-	return hex.EncodeToString(op.hex[36:56])
+	return hex.EncodeToString(op.hex[34:55])
 }
 
 // TransactionFee that's being paid along with this tx
@@ -95,18 +105,25 @@ func (op *GenericOperation) TransactionDestination() string {
 		return ""
 	}
 	// Verify these indices align with the end_index of transaction amount
-	numberIndex := 56
+	numberIndex := 55
 	for i := 0; i <= 4; i++ {
 		_, numberIndex = op.parseSerializedNumber(numberIndex)
 	}
 
-	start := len(op.hex) - 21
-	end := len(op.hex) - 1
-	if start-numberIndex != 2 {
-		log.Println("[WARN] Incorrect offset between numbers and destination.  Unsure where we're sending.")
+	destinationStart := numberIndex + 1
+	destinationEnd := numberIndex + 22
+
+	// Verify that no extra bytes are packed in here
+	if destinationEnd != len(op.hex)-1 {
+		log.Println("[WARN] Incorrect offset between numbers and destination. Unexpected parameters present. Unsure where we're sending.")
 		return ""
 	}
-	return hex.EncodeToString(op.hex[start:end])
+	// Verify that there are no trailing parameters
+	if op.hex[len(op.hex)-1] != 0x00 {
+		log.Println("[WARN] Presence of field parameters is not false, but parameter parsing is not yet implemented.  Failing.")
+		return ""
+	}
+	return hex.EncodeToString(op.hex[destinationStart:destinationEnd])
 }
 
 // TransactionValue is the total value of all XTZ that could be spent in this tx
@@ -126,7 +143,7 @@ func (op *GenericOperation) TransactionValue() *big.Int {
 func (op *GenericOperation) parseSerializedNumberOffset(offset int) *big.Int {
 	num := new(big.Int).SetInt64(int64(0))
 	// Numbers always begin at this index
-	index := 56
+	index := 55
 	for i := 0; i <= offset; i++ {
 		num, index = op.parseSerializedNumber(index)
 	}

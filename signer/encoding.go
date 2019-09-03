@@ -90,7 +90,12 @@ func b58CheckEncode(prefix []byte, bytes []byte) string {
 // returning only the pubkeyhash bytes
 func PubkeyHashToByteString(pubkeyhash string) string {
 	if strings.HasPrefix(pubkeyhash, "KT1") {
-		return hex.EncodeToString(base58.Decode(pubkeyhash)[4:23]) + "00"
+		return hex.EncodeToString(base58.Decode(pubkeyhash)[3:23]) + "00"
+	} else if strings.HasPrefix(pubkeyhash, "tz1") {
+		return "00" + hex.EncodeToString(base58.Decode(pubkeyhash)[3:23])
+	} else if strings.HasPrefix(pubkeyhash, "tz2") {
+		return "01" + hex.EncodeToString(base58.Decode(pubkeyhash)[3:23])
+	} else {
+		return "02" + hex.EncodeToString(base58.Decode(pubkeyhash)[3:23])
 	}
-	return hex.EncodeToString(base58.Decode(pubkeyhash)[3:23])
 }
