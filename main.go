@@ -90,6 +90,7 @@ func main() {
 		UserPin: *hsmPin,
 		LibPath: *hsmSO,
 	}
+	signer.SetDebug(*debug)
 	signingServer := signer.NewServer(pkcs11Signer, keys, *bind, opFilter, wm)
 	signingServer.Serve()
 }
