@@ -1,6 +1,4 @@
 Tezos HSM Signer
-================
-
 ![pipeline status](https://gitlab.com/polychainlabs/tezos-hsm-signer/badges/master/pipeline.svg) ![coverage](https://gitlab.com/polychainlabs/tezos-hsm-signer/badges/master/coverage.svg)
 
 Implement the Tezos HTTP signing interface, backed by an HSM over PKCS#11.
@@ -10,7 +8,7 @@ Implement the Tezos HTTP signing interface, backed by an HSM over PKCS#11.
 Install and start the signer:
 
 ```shell
-go get -u gitlab.com/polychainlabs/tezos-hsm-signer
+go get -u github.com/siler23/tezos-hsm-signer
 
 # Identify HSM keys and slots/labels
 $ vi keys.yaml

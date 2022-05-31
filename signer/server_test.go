@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.com/polychainlabs/tezos-hsm-signer/signer/watermark"
+	"github.com/siler23/tezos-hsm-signer/signer/watermark"
 )
 
 type testSigner struct {

@@ -7,8 +7,8 @@ import (
 	"math/big"
 	"strings"
 
-	"gitlab.com/polychainlabs/tezos-hsm-signer/signer"
-	"gitlab.com/polychainlabs/tezos-hsm-signer/signer/watermark"
+	"github.com/siler23/tezos-hsm-signer/signer"
+	"github.com/siler23/tezos-hsm-signer/signer/watermark"
 )
 
 var (
